@@ -6,8 +6,6 @@ import os
 import time
 import pandas as pd
 
-#os.system('wget http://repo.zabbix.com/zabbix/3.0/ubuntu/pool/main/z/zabbix-release/zabbix-release_3.0-2+xenial_all.deb')
-#os.system('wget ftp://192.168.255.132/zabbix-agent-3.0.11-1.el7.x86_64.rpm')
 
 def readCSV(filename):
 	data = pd.read_csv(filename)
@@ -42,8 +40,8 @@ def for_ubuntu():
 	send_init("sudo apt-get update\n",180,True)
 	send_init("sudo dpkg -i /zabbix_ubuntutrusty_64bit.rpm\n",10,True)
 	send_init("sudo apt-get update\n",60,True)
-	#send_init("sudo apt-get install zabbix-agent\n",2,True)
-        #send_init("/etc/init.d/zabbix-agent restart\n",1,True)
+	send_init("sudo apt-get install zabbix-agent\n",2,True)
+        send_init("/etc/init.d/zabbix-agent restart\n",1,True)
 		
 def for_centos(x):
 	send_init("rpm -ivh /opt/zabbix_"+x+"_64bit.rpm\n",1,True)
@@ -133,30 +131,14 @@ for d in data:
 			#ftp_client.put('/root/zabbix-release_3.0-2+xenial_all.deb','/opt/zabbix-release_3.0-2+xenial_all.deb')
 			#ftp_client.close()
 			shell = client.invoke_shell()
-			
-
-			#send_string_and_wait("rpm -ivh /opt/zabbix-agent-3.0.4-1.el7.x86_64.rpm\n", 1 , True)
-			#send_string_and_wait("sed -i 's/Server=127.0.0.1/Server=192.168.255.132/g' /etc/zabbix/zabbix_agentd.conf\n", 1 , True)
-			#send_string_and_wait("sed -i 's/ServerActive=127.0.0.1/ServerActive=192.168.255.132/g' /etc/zabbix/zabbix_agentd.conf\n", 1 , True)
-			#send_string_and_wait("sed -i 's/Hostname=\(*\)/Hostname=cloudwebserver/g' /etc/zabbix/zabbix_agentd.conf\n", 1 , True)
-
-			#send_string_and_wait("systemctl start zabbix-agent\n", 1 , True)
-			#send_string_and_wait("systemctl enable zabbix-agent\n", 1 , True)
-			#send_string_and_wait("systemctl status zabbix-agent\n", 1 , True)
-
-			
 
 		# Send the su command
 			send_init("sudo su -\n", 1 , True)
 		
 		# Send the client's su password followed by a newline
 			send_init(system_ssh_password + "\n", 1, True)
-			#send_string_and_wait("scp -r root@192.168.255.166:/root/zabbix-release_3.0-2+xenial_all.deb /opt/\n",1,True)
-			#send_string_and_wait(own_password + "\n", 1, True)
 			send_string_and_wait("cat /etc/*-release\n",1,True)
 			
-		# Send the install command followed by a newline and wait for the done string
-			#send_string_and_wait_for_string(root_command, root_command_result)
 
 		# Close the SSH connection
                 	
