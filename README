@@ -1,0 +1,4 @@
+The project takes in a csv with input in the following format:
+Ip,user,password,port
+ and automaticall installs zabbix-agent into the server.
+
