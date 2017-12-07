@@ -77,37 +77,59 @@ def send_string_and_wait(command,wait_time,should_print):
         c=receive_buffer.split("\n")
 	if any("CentOS" in s for s in c) and any("7" in s for s in c):
 		version= 'centos7'
-		send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
-		send_init("yes\n",3,True)
-        	send_init(own_password + "\n",1,True)
+		shell.send("arch\n")
+                time.sleep(wait_time)
+                bits= shell.recv(1024).split("\n")
+                if any("64" in s for s in bits):
+                        send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+                        send_init("yes\n",3,True)
+                        send_init(own_password + "\n",1,True)
+                else:
+                        send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+                        send_init("yes\n",3,True)
+                        send_init(own_password + "\n",1,True)
+
 		for_centos(version)
 
 	elif any("CentOS" in s for s in c)and any("6" in s for s in c):
 		version= 'centos6'
-                send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
-		send_init("yes\n",3,True)
-                send_init(own_password + "\n",1,True)
-                for_centos(version)
+		shell.send("arch\n")
+		time.sleep(wait_time)
+		bits= shell.recv(1024).split("\n")
+		if any("64" in s for s in bits):
+                	send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+			send_init("yes\n",3,True)
+                	send_init(own_password + "\n",1,True)
+		else:
+			send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+                        send_init("yes\n",3,True)
+                        send_init(own_password + "\n",1,True)
+               
+		for_centos(version)
 		#shell.send("arch\n")
 
 	elif any("CentOS" in s for s in c) and any("5" in s for s in c):
                 version= 'centos5'
-                send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
-                send_init("yes\n",3,True)
-                send_init(own_password + "\n",1,True)
+		shell.send("arch\n")
+                time.sleep(wait_time)
+                bits= shell.recv(1024).split("\n")
+                if any("64" in s for s in bits):
+                        send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+                        send_init("yes\n",3,True)
+                        send_init(own_password + "\n",1,True)
+                else:
+                        send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+                        send_init("yes\n",3,True)
+                        send_init(own_password + "\n",1,True)
                 for_centos(version)
 
 	elif any("ubuntu" in s for s in c):
-		#shell.send("arch\n")
-		#time.sleep(1)
-		#bit=shell.recv(1024)
-		#print bit
 		for_ubuntu()
 	else:
 		for_suse()
 	
 	
-data= readCSV("ub.csv")
+data= readCSV("servers.csv")
 for d in data:
 	if str(d[0]) !="nan":
 		system_ip = str(d[0])
