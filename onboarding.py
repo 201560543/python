@@ -22,9 +22,9 @@ def for_suse():
 	send_init("groupadd zabbix\n",1,True)
 	send_init("useradd -g zabbix zabbix\n",1,True)
 	send_init("usermod -G sapsys zabbix\n",1,True)
-	send_init("sed -i 's/Server=127.0.0.1/Server=192.168.255.132/g' /opt/zabbix/etc/zabbix_agentd.conf\n",1,True)
-	send_init("sed -i 's/ServerActive=127.0.0.1/ServerActive=192.168.255.132/g' /opt/zabbix/etc/zabbix_agentd.conf\n",1,True)
-	send_init("sed -i 's|Hostname=Zabbix server|Hostname=cloud|g' /opt/zabbix/etc/zabbix_agentd.conf\n",1,True)
+	send_init("sed -i 's/Server=127.0.0.1/Server="+proxy+"/g' /opt/zabbix/etc/zabbix_agentd.conf\n",1,True)
+	send_init("sed -i 's/ServerActive=127.0.0.1/ServerActive="+proxy+"/g' /opt/zabbix/etc/zabbix_agentd.conf\n",1,True)
+	send_init("sed -i 's|Hostname=Zabbix server|Hostname="+hostname+"|g' /opt/zabbix/etc/zabbix_agentd.conf\n",1,True)
 	send_init("chkconfig --level 3,5 zabbix_agentd on\n",1,True)
 	send_init("scp -r root@192.168.255.166:/root/agents/checkro.sh /opt/zabbix\n",1,True)
         send_init(own_password +"\n",1,True)
@@ -45,9 +45,9 @@ def for_ubuntu():
 		
 def for_centos(x):
 	send_init("rpm -ivh /opt/zabbix_"+x+"_64bit.rpm\n",1,True)
-        send_init("sed -i 's/Server=127.0.0.1/Server=192.168.255.132/g' /etc/zabbix/zabbix_agentd.conf\n",1,True)
-        send_init("sed -i 's/ServerActive=127.0.0.1/ServerActive=192.168.255.132/g' /etc/zabbix/zabbix_agentd.conf\n",1,True)
-        send_init("sed -i 's|Hostname=Zabbix server|Hostname=cloudwebserver|g' /etc/zabbix/zabbix_agentd.conf\n",1,True)
+        send_init("sed -i 's/Server=127.0.0.1/Server="+proxy+"/g' /etc/zabbix/zabbix_agentd.conf\n",1,True)
+        send_init("sed -i 's/ServerActive=127.0.0.1/ServerActive="+proxy+"/g' /etc/zabbix/zabbix_agentd.conf\n",1,True)
+        send_init("sed -i 's|Hostname=Zabbix server|Hostname="+hostname+"|g' /etc/zabbix/zabbix_agentd.conf\n",1,True)
         send_init("service zabbix-agent start\n",1,True)
         send_init("service zabbix-agent enable\n",1,True)
         send_init("service zabbix-agent status\n",1,True)	
@@ -77,6 +77,7 @@ def send_string_and_wait(command,wait_time,should_print):
         c=receive_buffer.split("\n")
 	if any("CentOS" in s for s in c) and any("7" in s for s in c):
 		version= 'centos7'
+		f.write(version+",")
 		shell.send("arch\n")
                 time.sleep(wait_time)
                 bits= shell.recv(1024).split("\n")
@@ -93,6 +94,7 @@ def send_string_and_wait(command,wait_time,should_print):
 
 	elif any("CentOS" in s for s in c)and any("6" in s for s in c):
 		version= 'centos6'
+		f.write(version+",")
 		shell.send("arch\n")
 		time.sleep(wait_time)
 		bits= shell.recv(1024).split("\n")
@@ -110,6 +112,7 @@ def send_string_and_wait(command,wait_time,should_print):
 
 	elif any("CentOS" in s for s in c) and any("5" in s for s in c):
                 version= 'centos5'
+		f.write(version+",")
 		shell.send("arch\n")
                 time.sleep(wait_time)
                 bits= shell.recv(1024).split("\n")
@@ -124,57 +127,59 @@ def send_string_and_wait(command,wait_time,should_print):
                 for_centos(version)
 
 	elif any("ubuntu" in s for s in c):
+		f.write("ubuntu,")
 		for_ubuntu()
 	else:
+		f.write("suse,")
 		for_suse()
 	
-	
-data= readCSV("servers.csv")
-for d in data:
-	if str(d[0]) !="nan":
-		system_ip = str(d[0])
-		system_username = str(d[1])
-		system_ssh_password = str(d[2])
-		por = int(d[3])
-		own_password = 'Zabbix@123'
-		client = paramiko.SSHClient()
+with open ("result.csv","wb+") as f:
+	f.write("Operating system, Ip, Username, Pasword, Port, Status\n")
+	data= readCSV("servers.csv")
+	for d in data:
+		if str(d[0]) !="nan":
+			system_ip = str(d[0])
+			system_username = str(d[1])
+			system_ssh_password = str(d[2])
+			por = int(d[3])
+			proxy = str(d[4])
+			hostname = str(d[5])
+			own_password = 'Zabbix@123'
+			client = paramiko.SSHClient()
 
 		# Make sure that we add the remote server's SSH key automatically
-		client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-		print "ip : " , system_ip
+			client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+			print "ip : " , system_ip
 		# Connect to the client
-		try:
-			client.connect(system_ip,port=por,username=system_username, password=system_ssh_password)
-			print "Connected ",client
+ 			try:
+				client.connect(system_ip,port=por,username=system_username, password=system_ssh_password)
+				print "Connected ",client
 				# Create a raw shell
 
 			#ftp_client=client.open_sftp()
 			#ftp_client.put('/root/zabbix-agent-3.0.4-1.el7.x86_64.rpm','/opt/zabbix-agent-3.0.4-1.el7.x86_64.rpm')
 			#ftp_client.put('/root/zabbix-release_3.0-2+xenial_all.deb','/opt/zabbix-release_3.0-2+xenial_all.deb')
 			#ftp_client.close()
-			shell = client.invoke_shell()
+				shell = client.invoke_shell()
 
 		# Send the su command
-			send_init("sudo su -\n", 1 , True)
+				send_init("sudo su -\n", 1 , True)
 		
 		# Send the client's su password followed by a newline
-			send_init(system_ssh_password + "\n", 1, True)
-			send_string_and_wait("cat /etc/*-release\n",1,True)
+				send_init(system_ssh_password + "\n", 1, True)
+				send_string_and_wait("cat /etc/*-release\n",1,True)
 			
 
 		# Close the SSH connection
                 	
-			client.close()
+				client.close()
 		#send_string_and_wait("passwd -u ctrls99\n", 1, True)
-		except (paramiko.SSHException, socket.error):
+			except (paramiko.SSHException, socket.error):
                 #the essage will be printed if the connection attempt fails.
-                        print'invalid login password'
+                        	print'invalid login password'
 				
-		with open ("result.csv","wb") as f:
 			if os.system("zabbix_get -s"+system_ip+" -k agent.ping")=="1":
 				f.write(system_ip+","+str(por)+","+system_username+","+system_ssh_password+",agent installed successfully\n")
 			else:
 				f.write(system_ip+","+str(por)+","+system_username+","+system_ssh_password+",error\n")
 			
-		
-

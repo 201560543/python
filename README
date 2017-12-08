@@ -1,4 +1,20 @@
-The project takes in a csv with input in the following format:
-Ip,user,password,port
- and automaticall installs zabbix-agent into the server.
+The project enables auto-installation of zabbix agent on the servers provided in the input file.
+Requirements: repo.py
+	      <input>.csv
+	      onboarding script
+	      zabbix installed on the server from where script is being excuted.
+Steps:
+	1. Execute repo.py to fetch the required agent packages.
+	2. Create the csv or get it in the following format:
+		Ip,user,password,port,Server_ip,Hostname
+		where:
+		Ip :- the server on which you want to install agent
+		Server_ip :- Active servers ip which has to be added in agen.config file
+		Hostname :- The host name
+	3. Run onboarding script.
+        4. The result and status of the installed agents will be available in another csv with title 'result.csv' in the following format:
+		Operating system, Ip, Username, Pasword, Port, Status
+
+
+
 
