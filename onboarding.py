@@ -1,15 +1,23 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythedern
 import socket
 import paramiko
 import sys
 import os
 import time
-import pandas as pd
-
+import csv
 
 def readCSV(filename):
-	data = pd.read_csv(filename)
-	return data.values
+	s=[]
+	firstline = True
+        data = csv.reader(open(filename, 'rb'), delimiter=",")
+        for row in data:
+	    if firstline:    #skip first line
+                firstline = False
+                continue
+
+            s.append(row)
+        return s
+
 
 def for_suse():
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -139,7 +147,7 @@ def send_string_and_wait(command,wait_time,should_print):
 	
 with open ("result.csv","wb+") as f:
 	f.write("Operating system, Ip, Username, Pasword, Port, Status\n")
-	data= readCSV("servers.csv")
+	data= readCSV("serverback.csv")
 	for d in data:
 		if str(d[0]) !="nan":
 			system_ip = str(d[0])
