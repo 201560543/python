@@ -6,13 +6,15 @@ Requirements: repo.py
 Steps:
 	1. Execute repo.py to fetch the required agent packages.
 	2. Create the csv or get it in the following format:
-		Ip,user,password,port,Server_ip,Hostname
+		Ip,user,password,port,Server_ip,Hostname,own_ip,own_passweord
 		where:
 		Ip :- the server on which you want to install agent
 		Server_ip :- Active servers ip which has to be added in agen.config file
 		Hostname :- The host name
-	3. Run onboarding script.
-        4. The result and status of the installed agents will be available in another csv with title 'result.csv' in the following format:
+		own_ip :- the system's private ip
+		own_password :- the systems password
+	4. Run onboarding script.
+        5. The result and status of the installed agents will be available in another csv with title 'result.csv' in the following format:
 		Operating system, Ip, Username, Pasword, Port, Status
 
 

@@ -13,7 +13,7 @@ def readCSV(filename):
 
 def for_suse():
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	send_init("scp -r root@192.168.255.166:/root/agents/zabbix_suse_64bit.tar.gz /\n",1,True)
+	send_init("scp -r root@"+own_ip+":/root/agents/zabbix_suse_64bit.tar.gz /\n",1,True)
 	send_init(own_password +"\n",1,True)
 	send_init("cd /\n",1,True)
       	send_init("tar -xzvf zabbix_suse_64bit.tar.gz\n",2,True)
@@ -34,7 +34,7 @@ def for_suse():
 	send_init("ps -ef | grep zabbix\n",1,True)
 		
 def for_ubuntu():
-	send_init("scp -r root@192.168.255.166:/root/agents/zabbix_ubuntutrusty_64bit.rpm /\n",10,True)
+	send_init("scp -r root@"+own_ip+":/root/agents/zabbix_ubuntutrusty_64bit.rpm /\n",10,True)
 	send_init("yes\n",3,True)
 	send_init(own_password + "\n",3,True)
 	send_init("sudo apt-get update\n",180,True)
@@ -82,11 +82,11 @@ def send_string_and_wait(command,wait_time,should_print):
                 time.sleep(wait_time)
                 bits= shell.recv(1024).split("\n")
                 if any("64" in s for s in bits):
-                        send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+                        send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
                 else:
-                        send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+                        send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
 
@@ -99,11 +99,11 @@ def send_string_and_wait(command,wait_time,should_print):
 		time.sleep(wait_time)
 		bits= shell.recv(1024).split("\n")
 		if any("64" in s for s in bits):
-                	send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+                	send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
 			send_init("yes\n",3,True)
                 	send_init(own_password + "\n",1,True)
 		else:
-			send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+			send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
                
@@ -117,11 +117,11 @@ def send_string_and_wait(command,wait_time,should_print):
                 time.sleep(wait_time)
                 bits= shell.recv(1024).split("\n")
                 if any("64" in s for s in bits):
-                        send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+                        send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
                 else:
-                        send_init("scp -r root@192.168.255.166:/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+                        send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
                 for_centos(version)
@@ -144,9 +144,9 @@ with open ("result.csv","wb+") as f:
 			por = int(d[3])
 			proxy = str(d[4])
 			hostname = str(d[5])
-			own_password = 'Zabbix@123'
+			own_password = str(d[7])
 			client = paramiko.SSHClient()
-
+			own_ip = str(d[6])
 		# Make sure that we add the remote server's SSH key automatically
 			client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 			print "ip : " , system_ip
@@ -156,10 +156,6 @@ with open ("result.csv","wb+") as f:
 				print "Connected ",client
 				# Create a raw shell
 
-			#ftp_client=client.open_sftp()
-			#ftp_client.put('/root/zabbix-agent-3.0.4-1.el7.x86_64.rpm','/opt/zabbix-agent-3.0.4-1.el7.x86_64.rpm')
-			#ftp_client.put('/root/zabbix-release_3.0-2+xenial_all.deb','/opt/zabbix-release_3.0-2+xenial_all.deb')
-			#ftp_client.close()
 				shell = client.invoke_shell()
 
 		# Send the su command
@@ -173,7 +169,6 @@ with open ("result.csv","wb+") as f:
 		# Close the SSH connection
                 	
 				client.close()
-		#send_string_and_wait("passwd -u ctrls99\n", 1, True)
 			except (paramiko.SSHException, socket.error):
                 #the essage will be printed if the connection attempt fails.
                         	print'invalid login password'
