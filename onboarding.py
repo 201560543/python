@@ -147,7 +147,7 @@ def send_string_and_wait(command,wait_time,should_print):
 	
 with open ("result.csv","wb+") as f:
 	f.write("Operating system, Ip, Username, Pasword, Port, Status\n")
-	data= readCSV("serverback.csv")
+	data= readCSV("servers.csv")
 	for d in data:
 		if str(d[0]) !="nan":
 			system_ip = str(d[0])
