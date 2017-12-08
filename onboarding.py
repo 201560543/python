@@ -13,7 +13,7 @@ def readCSV(filename):
 
 def for_suse():
         client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-	send_init("scp -r root@"+own_ip+":/root/agents/zabbix_suse_64bit.tar.gz /\n",1,True)
+	send_init("scp -P "+own_port+" root@"+own_ip+":/root/agents/zabbix_suse_64bit.tar.gz /\n",1,True)
 	send_init(own_password +"\n",1,True)
 	send_init("cd /\n",1,True)
       	send_init("tar -xzvf zabbix_suse_64bit.tar.gz\n",2,True)
@@ -34,7 +34,7 @@ def for_suse():
 	send_init("ps -ef | grep zabbix\n",1,True)
 		
 def for_ubuntu():
-	send_init("scp -r root@"+own_ip+":/root/agents/zabbix_ubuntutrusty_64bit.rpm /\n",10,True)
+	send_init("scp -P "+own_port+" root@"+own_ip+":/root/agents/zabbix_ubuntutrusty_64bit.rpm /\n",10,True)
 	send_init("yes\n",3,True)
 	send_init(own_password + "\n",3,True)
 	send_init("sudo apt-get update\n",180,True)
@@ -82,11 +82,11 @@ def send_string_and_wait(command,wait_time,should_print):
                 time.sleep(wait_time)
                 bits= shell.recv(1024).split("\n")
                 if any("64" in s for s in bits):
-                        send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+                        send_init("scp -P "+own_port+" root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
                 else:
-                        send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+                        send_init("scp -P "+own_port+" root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
 
@@ -99,11 +99,11 @@ def send_string_and_wait(command,wait_time,should_print):
 		time.sleep(wait_time)
 		bits= shell.recv(1024).split("\n")
 		if any("64" in s for s in bits):
-                	send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+                	send_init("scp -P "+own_port+" root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
 			send_init("yes\n",3,True)
                 	send_init(own_password + "\n",1,True)
 		else:
-			send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+			send_init("scp -P "+own_port+" root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
                
@@ -117,11 +117,11 @@ def send_string_and_wait(command,wait_time,should_print):
                 time.sleep(wait_time)
                 bits= shell.recv(1024).split("\n")
                 if any("64" in s for s in bits):
-                        send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
+                        send_init("scp -P "+own_port+" root@"+own_ip+":/root/agents/zabbix_"+version+"_64bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
                 else:
-                        send_init("scp -r root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
+                        send_init("scp -P "+own_port+" root@"+own_ip+":/root/agents/zabbix_"+version+"_32bit.rpm /opt/\n",1,True)
                         send_init("yes\n",3,True)
                         send_init(own_password + "\n",1,True)
                 for_centos(version)
@@ -147,6 +147,7 @@ with open ("result.csv","wb+") as f:
 			own_password = str(d[7])
 			client = paramiko.SSHClient()
 			own_ip = str(d[6])
+			own_port = str(int(d[8]))
 		# Make sure that we add the remote server's SSH key automatically
 			client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
 			print "ip : " , system_ip
